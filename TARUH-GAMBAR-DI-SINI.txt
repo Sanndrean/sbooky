@@ -1,0 +1,31 @@
+SALIN SEMUA GAMBAR LANGSUNG SEJAJAR DENGAN index.html
+
+file1.png / file1.jpg = Perahu Kertas
+file2.png / file2.jpg = Si Juki: Komik Strip
+file3.png / file3.jpg = Matematika
+file4.png / file4.jpg = The New Girl's Secret
+file5.png / file5.jpg = Romansa Romantika Masa SMA
+file6.png / file6.jpg = Ensiklopedia Sains
+file7.png / file7.jpg = Misteri Buku L/G
+file8.png / file8.jpg = Kebudayaan di Nusantara
+file9, file10, dan seterusnya = sesuai buku baru yang kamu tambah melalui admin.
+
+Ekstensi .png, .jpg, .jpeg, .webp (huruf kecil/besar) didukung.
+Nama buku dan author bisa kamu koreksi melalui menu ADMIN > Buku & stok.
+
+wihope.png = logo SMKS Wira Harapan milikmu.
+logo.png = logo Sbooky; sudah disertakan, boleh diganti dengan punyamu.
+sbpoint.png = ikon kotak Sbooky Point.
+sbgift.png = ikon tombol hadiah harian dan misi.
+sbshop.png = ikon tombol Sbooky Shop.
+sbmissionbook.png = ikon buku untuk misi membaca dan pengembalian.
+sbfire.png = ikon api untuk misi login streak.
+sbleaderbook.png = ikon jumlah buku pada leaderboard.
+sbleadertime.png = ikon waktu pada leaderboard.
+sbleaderpoint.png = ikon point pada leaderboard.
+sbleaderboard.png = ikon menu Leaderboard di sidebar.
+
+Nama file sampul di admin boleh memakai file3 (tanpa ekstensi) atau file3.jpg.
+Untuk berbagi gambar ke perangkat lain, upload file gambarnya ke halaman utama
+repository GitHub bersama index.html. Tidak perlu membuat folder images.
+Donasi PDF/foto mempunyai alur unggah Firebase sendiri.

@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#101b15">
+  <meta name="description" content="Sbooky, perpustakaan SMKS Wira Harapan. Pinjam buku fisik dan baca koleksi digital dari donasi.">
+  <title>Sbooky — Perpustakaan SMKS Wira Harapan</title>
+  <link rel="icon" href="logo.png">
+  <link rel="stylesheet" href="style.css?v=12">
+  <script defer src="config.js?v=12"></script>
+  <script defer src="firebase-sdk.js?v=12"></script>
+  <script defer src="books.js?v=12"></script>
+  <script defer src="core.js?v=12"></script>
+  <script defer src="demo-store.js?v=12"></script>
+  <script defer src="firebase-blaze-store.js?v=12"></script>
+  <script defer src="firestore-actions.js?v=12"></script>
+  <script defer src="firebase-store.js?v=12"></script>
+  <script defer src="script.js?v=12"></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">Lewati ke koleksi</a>
+  <aside class="sidebar" id="sidebar" aria-label="Menu utama">
+    <button class="icon-button close-menu" id="closeMenu" aria-label="Tutup menu">×</button>
+    <a class="brand" href="#home"><img src="logo.png" alt=""><span>Sbooky<small>Perpustakaan sekolah</small></span></a>
+    <nav>
+      <button class="nav active" data-view="home"><span aria-hidden="true">⌂</span>Beranda</button>
+      <button class="nav" data-view="offline"><span aria-hidden="true">▤</span>Buku Offline</button>
+      <button class="nav" data-view="online"><span aria-hidden="true">▣</span>Buku Online</button>
+      <p class="side-label">PERPUSTAKAANMU</p>
+      <button class="nav" data-view="liked"><span aria-hidden="true">♡</span>Buku Disukai <b id="likedCount">0</b></button>
+      <button class="nav" data-view="loans"><span aria-hidden="true">⇄</span>Pinjaman Saya <b id="loanCount">0</b></button>
+      <button class="nav" data-view="history"><span aria-hidden="true">◷</span>Riwayat Membaca</button>
+      <button class="nav" data-view="donations"><span aria-hidden="true">↑</span>Donasi Saya</button>
+      <button class="nav" data-view="leaderboard"><span class="nav-image"><img data-image="sbleaderboard" alt=""></span>Leaderboard</button>
+      <button class="nav admin-nav" data-view="admin" id="adminNav" hidden><span aria-hidden="true">▦</span>Dashboard Admin</button>
+    </nav>
+    <button class="donate-cta" data-action="donate"><b>＋ Donasikan buku</b><span>Bagikan PDF atau scan halaman</span></button>
+    <div class="sidebar-footer"><span class="mini-mark">S</span><div>SMKS Wira Harapan<small>Drop Everything And Read.</small></div></div>
+  </aside>
+  <button class="menu-overlay" id="menuOverlay" aria-label="Tutup menu" hidden></button>
+  <main id="main" tabindex="-1">
+    <header class="topbar">
+      <button class="icon-button menu-button" id="menuButton" aria-label="Buka menu" aria-expanded="false">☰</button>
+      <label class="search"><span aria-hidden="true">⌕</span><input id="searchInput" type="search" aria-label="Cari buku, penulis, atau NIS" placeholder="Cari buku atau penulis…" autocomplete="off"></label>
+      <span class="connection" id="connectionLabel" hidden aria-live="polite"></span>
+      <div class="reward-actions" id="rewardActions" hidden>
+        <button class="point-chip" data-action="points" title="Sbooky Point"><span class="reward-icon"><img data-image="sbpoint" alt="Logo Sbooky Point"></span><strong id="pointCount">0</strong><small>POINT</small></button>
+        <button class="reward-button gift" data-action="gift" title="Hadiah harian"><span class="reward-icon"><img data-image="sbgift" alt="Logo hadiah dan misi"></span></button>
+        <button class="reward-button shop" data-action="shop" title="Sbooky Shop"><span class="reward-icon"><img data-image="sbshop" alt="Logo Sbooky Shop"></span></button>
+      </div>
+      <button class="button light" id="loginButton" data-action="login">Masuk</button>
+      <button class="profile-button" id="profileButton" data-action="profile" hidden><span id="profileInitial">S</span><b id="profileName"></b></button>
+    </header>
+    <div class="content">
+      <div class="mode-notice" id="modeNotice" hidden></div>
+      <section id="catalogPanel">
+        <section class="hero" id="hero">
+          <div class="hero-copy"><small>PERPUSTAKAAN</small><h1>SMKS WIRA HARAPAN</h1><h2>Drop Everything And Read.</h2><p>Temukan buku yang ingin kamu baca!</p><button class="button primary" data-view="offline">Jelajahi koleksi <span aria-hidden="true">↗</span></button></div>
+          <div class="school-logo"><img id="schoolLogo" alt="Logo SMKS Wira Harapan"><span id="schoolLogoFallback">WIRA<br>HARAPAN</span></div>
+        </section>
+        <div class="collection-tabs" id="collectionTabs" aria-label="Jenis koleksi">
+          <button data-collection="offline" class="active">Buku Offline <span>Pinjam di perpustakaan</span></button>
+          <button data-collection="online">Buku Online <span>Baca dari donasi digital</span></button>
+        </div>
+        <div class="categories" id="categories" aria-label="Kategori buku"></div>
+        <div class="section-title"><div><h2 id="pageTitle">Koleksi perpustakaan</h2><p id="bookTotal">Memuat buku…</p></div><label class="sort-label">Urutkan <select id="sortInput"><option value="default">Terbaru</option><option value="title">Judul A–Z</option><option value="popular">Paling dipinjam</option></select></label></div>
+        <section class="book-grid" id="bookGrid" aria-label="Daftar buku" aria-live="polite"></section>
+        <div class="empty" id="emptyState" hidden><span aria-hidden="true">▤</span><h3 id="emptyTitle">Belum ada buku</h3><p id="emptyText">Coba kategori atau pencarian lain.</p></div>
+        <button class="button secondary load-more" id="loadMore" data-action="more" hidden>Tampilkan lebih banyak</button>
+      </section>
+      <section id="loansPanel" hidden></section>
+      <section id="donationsPanel" hidden></section>
+      <section id="leaderboardPanel" hidden></section>
+      <section id="adminPanel" hidden>
+        <div class="section-title admin-heading"><div><small class="eyebrow">RUANG PENGELOLA</small><h1>Dashboard Admin</h1><p id="adminWelcome"></p></div><button class="button primary" data-action="add-book">＋ Tambah buku fisik</button></div>
+        <div class="stats-grid" id="adminStats"></div>
+        <div class="admin-tabs" id="adminTabs" aria-label="Bagian dashboard">
+          <button data-admin-tab="inventory" class="active">Buku & stok</button><button data-admin-tab="loans">Peminjaman aktif</button><button data-admin-tab="history">Riwayat lengkap</button><button data-admin-tab="donations">Donasi masuk</button><button data-admin-tab="users">Siswa & point</button><button data-admin-tab="admins">Data admin</button>
+        </div>
+        <div id="adminContent"></div>
+      </section>
+      <footer class="page-footer">
+        <div class="footer-brand"><img src="logo.png" alt="Logo Sbooky"><div><strong>Sbooky</strong><p>Perpustakaan digital dan peminjaman buku SMKS Wira Harapan.</p></div></div>
+        <div><strong>Kontak sekolah</strong><a href="tel:+623619004245">(0361) 9004245</a><a href="tel:+623619004598">(0361) 9004598</a><a href="mailto:wiraharapan08@yahoo.com">wiraharapan08@yahoo.com</a></div>
+        <div><strong>Lokasi</strong><p>Jl. Raya Padang Luwih, Br. Tegal Jaya, Dalung, Kuta Utara, Badung, Bali</p><a href="https://smkwiraharapan.sch.id/" target="_blank" rel="noopener">Website sekolah ↗</a></div>
+        <div class="footer-bottom"><span>© 2026 Sbooky · XI RPL SMKS Wira Harapan</span><button class="text-button" data-action="credits">Lihat kredit pembuat</button></div>
+      </footer>
+    </div>
+  </main>
+  <dialog id="dialog" aria-labelledby="dialogTitle"><button class="icon-button dialog-close" id="dialogClose" aria-label="Tutup">×</button><div id="dialogBody"></div></dialog>
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  <noscript><div class="error-banner">Aktifkan JavaScript untuk membuka koleksi dan meminjam buku.</div></noscript>
+</body>
+</html>

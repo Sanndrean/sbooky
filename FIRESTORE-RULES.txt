@@ -1,0 +1,185 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() { return request.auth != null; }
+    function adminPath() { return /databases/$(database)/documents/adminAccess/$(request.auth.uid); }
+    function admin() {
+      return signedIn() && exists(adminPath()) &&
+        get(adminPath()).data.name in ['SAdmin','OAdmin','JAdmin','GAdmin','AdminU'] &&
+        request.auth.token.email == get(adminPath()).data.name.lower() + '@admins.sbooky.invalid';
+    }
+    function userPath(uid) { return /databases/$(database)/documents/users/$(uid); }
+    function bookPath(id) { return /databases/$(database)/documents/books/$(id); }
+    function loanPath(id) { return /databases/$(database)/documents/loans/$(id); }
+    function leaderPath(uid) { return /databases/$(database)/documents/leaderboard/$(uid); }
+    function nearNow(value) { return value is int && value <= request.time.toMillis() + 300000 && value >= request.time.toMillis() - 300000; }
+    function validId(id) { return id is string && id.matches('^[a-zA-Z0-9_-]{1,128}$'); }
+    function validBook(b) {
+      return b.keys().hasOnly(['title','author','category','description','imageName','type','stock','borrowed','published','color','updatedAt','lastLoanId']) &&
+        b.title is string && b.title.size() > 0 && b.title.size() <= 180 &&
+        b.author is string && b.author.size() > 0 && b.author.size() <= 120 &&
+        b.description is string && b.description.size() <= 2000 &&
+        b.imageName is string && b.imageName.size() <= 100 &&
+        b.category in ['Novel','Komik','Buku Paket','Fantasi','Romance','Sains','Misteri','Budaya','Lainnya'] &&
+        b.type == 'offline' && b.published == true && b.stock is int && b.borrowed is int &&
+        b.borrowed >= 0 && b.stock >= b.borrowed && b.stock <= 100000 &&
+        b.color is string && b.color.size() <= 30 && b.updatedAt is int && b.lastLoanId is string;
+    }
+    function validProfile(uid,p) {
+      return p.keys().hasOnly(['uid','name','nis','role','adminName','activeLoans','activeCount','lastLoanId','likes','createdAt','points','totalBorrows','totalReturns','readingSeconds','lastSeenAt','lastDailyClaimAt','dailyStreak','missionMonth','monthBorrows','monthReturns','monthLoginDays']) &&
+        p.uid == uid && p.name is string && p.name.size() >= 2 && p.name.size() <= 100 &&
+        p.activeLoans == {} && p.activeCount == 0 && p.lastLoanId == '' && p.likes == [] && p.createdAt is int &&
+        p.points == 0 && p.totalBorrows == 0 && p.totalReturns == 0 && p.readingSeconds == 0 &&
+        p.lastSeenAt == 0 && p.lastDailyClaimAt == 0 && p.dailyStreak == 0 &&
+        p.missionMonth is string && p.missionMonth.size() == 7 && p.monthBorrows == 0 && p.monthReturns == 0 && p.monthLoginDays == 0 &&
+        ((p.role == 'student' && p.nis is string && p.nis.matches('^[0-9]{4,20}$') &&
+          request.auth.token.email == p.nis + '@students.sbooky.invalid' && !('adminName' in p)) ||
+         (p.role == 'admin' && admin() && p.name == get(adminPath()).data.name && p.adminName == p.name && p.nis == null));
+    }
+    function validLeader(uid,p) {
+      let u = getAfter(userPath(uid)).data;
+      return p.keys().hasOnly(['uid','name','points','totalBorrows','readingSeconds','updatedAt']) &&
+        p.uid == uid && p.name == u.name && p.points == u.get('points',0) &&
+        p.totalBorrows == u.get('totalBorrows',0) && p.readingSeconds == u.get('readingSeconds',0) && nearNow(p.updatedAt);
+    }
+    // Loan + user quota + stock must change together. Writing just one document fails.
+    function validBorrow(id) {
+      let l = getAfter(loanPath(id)).data;
+      let u = get(userPath(l.uid)).data;
+      let ua = getAfter(userPath(l.uid)).data;
+      let b = get(bookPath(l.bookId)).data;
+      let ba = getAfter(bookPath(l.bookId)).data;
+      let active = u.get('activeLoans', {});
+      return signedIn() && validId(id) && !exists(loanPath(id)) && l.uid == request.auth.uid &&
+        l.keys().hasOnly(['uid','nis','name','bookId','title','author','status','borrowedAt','returnedAt','returnedBy']) &&
+        validId(l.bookId) && l.status == 'active' && l.returnedAt == null && l.returnedBy == null && l.borrowedAt is int &&
+        l.nis == u.nis && l.name == u.name && l.title == b.title && l.author == b.author && u.role == 'student' &&
+        active is map && u.activeCount == active.size() && active.size() < 10 && !(l.bookId in active) &&
+        ua.diff(u).affectedKeys().hasOnly(['activeLoans','activeCount','lastLoanId','points','totalBorrows','missionMonth','monthBorrows','monthReturns','monthLoginDays']) &&
+        ua.activeLoans is map && ua.activeLoans.diff(active).affectedKeys().hasOnly([l.bookId]) &&
+        ua.activeLoans[l.bookId] == id && ua.activeLoans.size() == active.size() + 1 &&
+        ua.activeCount == ua.activeLoans.size() && ua.activeCount <= 10 && ua.lastLoanId == id &&
+        ua.points == u.get('points',0) + 2 && ua.totalBorrows == u.get('totalBorrows',0) + 1 &&
+        ua.missionMonth is string && ua.missionMonth.size() == 7 &&
+        ((ua.missionMonth == u.get('missionMonth','') && ua.monthBorrows == u.get('monthBorrows',0) + 1) ||
+         (ua.missionMonth != u.get('missionMonth','') && ua.monthBorrows == 1 && ua.monthReturns == 0 && ua.monthLoginDays == 0)) &&
+        validLeader(l.uid,getAfter(leaderPath(l.uid)).data) &&
+        b.type == 'offline' && b.published == true && b.borrowed is int && b.borrowed >= 0 && b.borrowed < b.stock &&
+        ba.diff(b).affectedKeys().hasOnly(['borrowed','lastLoanId','updatedAt']) &&
+        ba.borrowed == b.borrowed + 1 && ba.borrowed <= b.stock && ba.lastLoanId == id && ba.updatedAt is int;
+    }
+    function validReturn(id) {
+      let l = get(loanPath(id)).data;
+      let la = getAfter(loanPath(id)).data;
+      let u = get(userPath(l.uid)).data;
+      let ua = getAfter(userPath(l.uid)).data;
+      let b = get(bookPath(l.bookId)).data;
+      let ba = getAfter(bookPath(l.bookId)).data;
+      return admin() && validId(id) && l.status == 'active' && la.status == 'returned' &&
+        la.diff(l).affectedKeys().hasOnly(['status','returnedAt','returnedBy','returnedByName']) &&
+        la.returnedBy == request.auth.uid && la.returnedByName is string && la.returnedByName.size() >= 2 && la.returnedByName.size() <= 30 && la.returnedAt is int &&
+        u.activeLoans is map && u.activeLoans[l.bookId] == id && u.activeCount == u.activeLoans.size() && u.activeCount > 0 &&
+        ua.diff(u).affectedKeys().hasOnly(['activeLoans','activeCount','lastLoanId','points','totalReturns','missionMonth','monthReturns','monthBorrows','monthLoginDays']) &&
+        ua.activeLoans is map && !(l.bookId in ua.activeLoans) && ua.activeLoans.diff(u.activeLoans).affectedKeys().hasOnly([l.bookId]) &&
+        ua.activeLoans.size() == u.activeLoans.size() - 1 && ua.activeCount == ua.activeLoans.size() && ua.lastLoanId == id &&
+        ua.points == u.get('points',0) + 5 && ua.totalReturns == u.get('totalReturns',0) + 1 &&
+        ua.missionMonth is string && ua.missionMonth.size() == 7 &&
+        ((ua.missionMonth == u.get('missionMonth','') && ua.monthReturns == u.get('monthReturns',0) + 1) ||
+         (ua.missionMonth != u.get('missionMonth','') && ua.monthReturns == 1 && ua.monthBorrows == 0 && ua.monthLoginDays == 0)) &&
+        validLeader(l.uid,getAfter(leaderPath(l.uid)).data) &&
+        b.borrowed > 0 && ba.diff(b).affectedKeys().hasOnly(['borrowed','lastLoanId','updatedAt']) &&
+        ba.borrowed == b.borrowed - 1 && ba.borrowed >= 0 && ba.lastLoanId == id && ba.updatedAt is int;
+    }
+    function validDaily(uid) {
+      let u = resource.data;
+      let ua = request.resource.data;
+      let oldClaim = u.get('lastDailyClaimAt',0);
+      return request.auth.uid == uid && u.role == 'student' &&
+        ua.diff(u).affectedKeys().hasOnly(['points','lastDailyClaimAt','dailyStreak','missionMonth','monthLoginDays','monthBorrows','monthReturns']) &&
+        ua.points == u.get('points',0) + 10 && nearNow(ua.lastDailyClaimAt) &&
+        (oldClaim == 0 || ua.lastDailyClaimAt - oldClaim >= 72000000) &&
+        ua.dailyStreak is int && ua.dailyStreak >= 1 && ua.dailyStreak <= u.get('dailyStreak',0) + 1 &&
+        ua.missionMonth is string && ua.missionMonth.size() == 7 &&
+        ((ua.missionMonth == u.get('missionMonth','') && ua.monthLoginDays == u.get('monthLoginDays',0) + 1) ||
+         (ua.missionMonth != u.get('missionMonth','') && ua.monthLoginDays == 1 && ua.monthBorrows == 0 && ua.monthReturns == 0)) &&
+        validLeader(uid,getAfter(leaderPath(uid)).data);
+    }
+    function validActivity(uid) {
+      let u = resource.data;
+      let ua = request.resource.data;
+      return request.auth.uid == uid && u.role == 'student' &&
+        ua.diff(u).affectedKeys().hasOnly(['readingSeconds','lastSeenAt']) &&
+        ua.readingSeconds is int && ua.readingSeconds > u.get('readingSeconds',0) &&
+        ua.readingSeconds <= u.get('readingSeconds',0) + 120 && nearNow(ua.lastSeenAt) &&
+        validLeader(uid,getAfter(leaderPath(uid)).data);
+    }
+    function validPointAdjustment(uid) {
+      let u = resource.data;
+      let ua = request.resource.data;
+      return admin() && u.role == 'student' &&
+        ua.diff(u).affectedKeys().hasOnly(['points','pointUpdatedAt','pointNote']) &&
+        ua.points is int && ua.points >= 0 && ua.points >= u.get('points',0) - 1000 && ua.points <= u.get('points',0) + 1000 &&
+        nearNow(ua.pointUpdatedAt) && ua.pointNote is string && ua.pointNote.size() <= 120 &&
+        validLeader(uid,getAfter(leaderPath(uid)).data);
+    }
+    match /adminAccess/{uid} {
+      allow get: if signedIn() && (request.auth.uid == uid || admin());
+      allow list: if admin();
+      // Add entries ONLY through Firebase Console, never through this website.
+      allow write: if false;
+    }
+    match /users/{uid} {
+      allow read: if signedIn() && (request.auth.uid == uid || admin());
+      allow create: if signedIn() && request.auth.uid == uid && validProfile(uid,request.resource.data);
+      allow update: if signedIn() && (
+        (request.auth.uid == uid && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['likes']) &&
+          request.resource.data.likes is list && request.resource.data.likes.size() <= 1000) ||
+        validDaily(uid) || validActivity(uid) || validPointAdjustment(uid) ||
+        (request.auth.uid == uid && validBorrow(request.resource.data.lastLoanId) &&
+          getAfter(loanPath(request.resource.data.lastLoanId)).data.uid == uid) ||
+        (admin() && validReturn(request.resource.data.lastLoanId) &&
+          get(loanPath(request.resource.data.lastLoanId)).data.uid == uid));
+      allow delete: if false;
+    }
+    match /books/{bookId} {
+      allow read: if resource.data.published == true || admin();
+      allow create: if admin() && validId(bookId) && validBook(request.resource.data) &&
+        request.resource.data.borrowed == 0 && request.resource.data.lastLoanId == '';
+      allow update: if signedIn() && (
+        (admin() && validBook(request.resource.data) && request.resource.data.borrowed == resource.data.borrowed &&
+          request.resource.data.lastLoanId == resource.data.get('lastLoanId','')) ||
+        (validBorrow(request.resource.data.lastLoanId) && getAfter(loanPath(request.resource.data.lastLoanId)).data.bookId == bookId) ||
+        (admin() && validReturn(request.resource.data.lastLoanId) && get(loanPath(request.resource.data.lastLoanId)).data.bookId == bookId));
+      allow delete: if false;
+    }
+    match /loans/{loanId} {
+      allow get: if signedIn() && (!exists(loanPath(loanId)) || resource.data.uid == request.auth.uid || admin());
+      allow list: if signedIn() && (resource.data.uid == request.auth.uid || admin());
+      allow create: if signedIn() && validBorrow(loanId);
+      allow update: if admin() && validReturn(loanId);
+      allow delete: if false;
+    }
+    match /ratings/{ratingId} {
+      allow read: if true;
+      allow create: if signedIn() && request.resource.data.keys().hasOnly(['uid','bookId','score','updatedAt']) &&
+        request.resource.data.uid == request.auth.uid && request.resource.data.bookId is string &&
+        request.resource.data.score is int && request.resource.data.score >= 1 && request.resource.data.score <= 5 &&
+        nearNow(request.resource.data.updatedAt) && exists(bookPath(request.resource.data.bookId));
+      allow update: if signedIn() && resource.data.uid == request.auth.uid &&
+        request.resource.data.diff(resource.data).affectedKeys().hasOnly(['score','updatedAt']) &&
+        request.resource.data.score is int && request.resource.data.score >= 1 && request.resource.data.score <= 5 &&
+        nearNow(request.resource.data.updatedAt);
+      allow delete: if signedIn() && resource.data.uid == request.auth.uid;
+    }
+    match /leaderboard/{uid} {
+      allow read: if true;
+      allow create, update: if signedIn() && (request.auth.uid == uid || admin()) && validLeader(uid,request.resource.data);
+      allow delete: if false;
+    }
+    match /donations/{donationId} {
+      allow read: if signedIn() && (resource.data.uid == request.auth.uid || admin());
+      allow write: if false;
+    }
+    match /{document=**} { allow read, write: if false; }
+  }
+}

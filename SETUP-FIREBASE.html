@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Setup Firebase — Sbooky</title>
+  <style>
+    *{box-sizing:border-box}body{margin:0;font:16px/1.65 Arial,sans-serif;background:#09120d;color:#eef9f0}
+    main{max-width:920px;margin:auto;padding:34px 20px 70px}h1{font-size:clamp(30px,6vw,48px);line-height:1.1;margin:12px 0}
+    h2{font-size:22px;margin-top:0}.tag{color:#39e878;letter-spacing:2px;font-weight:800}.intro{color:#bed3c5}
+    section{margin:20px 0;padding:24px;background:#14241a;border:1px solid #31533d;border-radius:18px}
+    li{padding:4px 0;color:#c9dbce}code{background:#09140d;color:#9df2b5;padding:3px 6px;border-radius:5px}
+    button,a.button{display:inline-block;border:0;border-radius:999px;padding:12px 19px;background:#25dd67;color:#05230d;font-weight:800;text-decoration:none;cursor:pointer}
+    .secondary{background:#27362c!important;color:#eaf7ed!important}.notice{border-left:4px solid #efc95d;background:#2c2818;padding:14px 16px;border-radius:8px;color:#f3dfa2}
+    table{width:100%;border-collapse:collapse;min-width:580px}th,td{text-align:left;border-bottom:1px solid #35513e;padding:10px}.table{overflow:auto}
+    #copyStatus{color:#9ed5ad}@media(max-width:600px){main{padding:22px 13px}section{padding:18px}}
+  </style>
+</head>
+<body><main>
+  <p class="tag">SBOOKY · FIREBASE</p>
+  <h1>Setup Firebase tanpa bingung</h1>
+  <p class="intro">Proyek <strong>sbooky-1</strong> dan konfigurasi Web sudah terpasang. Ikuti urutan di bawah; Storage tidak diperlukan untuk versi Coming Soon.</p>
+
+  <section>
+    <h2>1. Publish Firestore Rules terbaru</h2>
+    <ol>
+      <li>Klik <strong>Salin Rules</strong>. Jalankan halaman ini lewat Live Server agar tombol dapat membaca file di sebelahnya.</li>
+      <li>Buka Firebase Console → proyek <strong>sbooky-1</strong> → Firestore Database → <strong>Rules</strong>.</li>
+      <li>Di editor Rules tekan Ctrl+A, lalu Ctrl+V.</li>
+      <li>Klik <strong>Publish</strong> dan tunggu sampai berhasil.</li>
+    </ol>
+    <button id="copyRules" type="button">Salin Rules</button>
+    <a class="button secondary" href="FIRESTORE-RULES.txt" target="_blank">Buka Rules manual</a>
+    <p id="copyStatus" role="status">Sumber: FIRESTORE-RULES.txt yang berada langsung di samping index.html.</p>
+    <p class="notice">Wajib memakai Rules dari ZIP terbaru. Tanpa Rules ini rating, point, leaderboard, dan riwayat lengkap akan ditolak Firebase.</p>
+  </section>
+
+  <section>
+    <h2>2. Aktifkan dan buat akun admin</h2>
+    <ol>
+      <li>Authentication → Sign-in method → aktifkan <strong>Email/Password</strong>.</li>
+      <li>Authentication → Users → Add user.</li>
+      <li>Buat kelima akun di bawah. Alamat email hanya identitas internal; tidak perlu membuat Gmail.</li>
+    </ol>
+    <div class="table"><table><thead><tr><th>Nama login</th><th>Email Authentication</th><th>Password awal</th></tr></thead><tbody>
+      <tr><td>SAdmin</td><td>sadmin@admins.sbooky.invalid</td><td>ongko123</td></tr>
+      <tr><td>OAdmin</td><td>oadmin@admins.sbooky.invalid</td><td>ongko123</td></tr>
+      <tr><td>JAdmin</td><td>jadmin@admins.sbooky.invalid</td><td>ongko123</td></tr>
+      <tr><td>GAdmin</td><td>gadmin@admins.sbooky.invalid</td><td>ongko123</td></tr>
+      <tr><td>AdminU</td><td>adminu@admins.sbooky.invalid</td><td>ongko123</td></tr>
+    </tbody></table></div>
+  </section>
+
+  <section>
+    <h2>3. Pasang hak admin dengan UID</h2>
+    <ol>
+      <li>Authentication → Users → salin UID akun admin.</li>
+      <li>Firestore Database → Data → buat koleksi bernama persis <code>adminAccess</code>.</li>
+      <li>Document ID harus UID yang disalin, bukan Auto-ID.</li>
+      <li>Tambahkan field <code>name</code>, tipe String, nilainya nama login admin yang cocok.</li>
+      <li>Ulangi untuk lima admin. Satu UID hanya untuk satu dokumen.</li>
+    </ol>
+    <p>Contoh SAdmin: Document ID = UID akun <code>sadmin@admins.sbooky.invalid</code>, lalu field <code>name</code> = <code>SAdmin</code>.</p>
+  </section>
+
+  <section>
+    <h2>4. Upload ke GitHub dalam satu tempat</h2>
+    <ol>
+      <li>Ekstrak ZIP ini.</li>
+      <li>Upload seluruh file di dalamnya ke halaman utama/root repository. Jangan upload ZIP-nya saja.</li>
+      <li>Taruh semua gambar di tempat yang sama dengan <code>index.html</code>: <code>file1.png</code>–<code>file8.png</code>, <code>wihope.png</code>, <code>sbpoint.png</code>, <code>sbgift.png</code>, <code>sbshop.png</code>, <code>sbmissionbook.png</code>, <code>sbfire.png</code>, <code>sbleaderbook.png</code>, <code>sbleadertime.png</code>, <code>sbleaderpoint.png</code>, dan <code>sbleaderboard.png</code>.</li>
+      <li>GitHub Settings → Pages → Deploy from a branch → main / root → Save.</li>
+    </ol>
+  </section>
+
+  <section>
+    <h2>5. Aktifkan delapan buku awal</h2>
+    <ol>
+      <li>Masuk Sbooky sebagai admin.</li>
+      <li>Dashboard → Buku & stok → <strong>Simpan 8 buku awal</strong>.</li>
+      <li>Edit stok sesuai jumlah fisik sebenarnya. Stok awal sengaja 0.</li>
+    </ol>
+    <p>Setelah mengganti file di GitHub, tunggu Pages selesai lalu tekan Ctrl+F5.</p>
+  </section>
+</main>
+<script>
+document.getElementById('copyRules').addEventListener('click', async () => {
+  const status = document.getElementById('copyStatus');
+  try {
+    const response = await fetch('FIRESTORE-RULES.txt', {cache: 'no-store'});
+    if (!response.ok) throw new Error('Rules tidak ditemukan');
+    await navigator.clipboard.writeText(await response.text());
+    status.textContent = 'Rules berhasil disalin. Sekarang tempel ke Firestore Database → Rules lalu Publish.';
+  } catch (error) {
+    status.textContent = 'Browser tidak mengizinkan salin otomatis. Klik “Buka Rules manual”, lalu Ctrl+A dan Ctrl+C.';
+  }
+});
+</script></body></html>

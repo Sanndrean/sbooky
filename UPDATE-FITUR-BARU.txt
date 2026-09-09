@@ -1,0 +1,36 @@
+SBOOKY — UPDATE RATING, POINT, MISI, LEADERBOARD, DAN RIWAYAT ADMIN
+
+WAJIB SETELAH UPLOAD KE GITHUB:
+1. Buka file FIRESTORE-RULES.txt dari paket ini.
+2. Ctrl+A lalu Ctrl+C.
+3. Firebase Console → Firestore Database → Rules.
+4. Klik area Rules → Ctrl+A → Ctrl+V → Publish.
+
+Jika Rules baru belum dipublikasikan, rating, point, leaderboard, dan history lengkap
+akan ditolak Firebase walaupun tampilan websitenya sudah berubah.
+
+UPLOAD GITHUB:
+Ekstrak ZIP, lalu upload SELURUH file di dalamnya ke root repository. Pilih Replace
+files jika GitHub menemukan nama yang sama. Jangan upload ZIP-nya sebagai satu file.
+
+GAMBAR TEMPLATE (semua langsung sejajar dengan index.html):
+sbpoint.png = logo Sbooky Point
+sbgift.png  = logo Daily Reward dan misi
+sbshop.png  = logo Shop
+sbmissionbook.png = ikon buku pada misi
+sbfire.png = ikon api login streak
+sbleaderbook.png = ikon jumlah buku leaderboard
+sbleadertime.png = ikon waktu leaderboard
+sbleaderpoint.png = ikon point leaderboard
+sbleaderboard.png = ikon menu Leaderboard
+file1–file8 = sampul buku
+wihope.png  = logo sekolah
+
+POINT:
++2 saat siswa mulai meminjam buku, +5 saat admin menerima pengembalian, dan +10 dari
+Daily Reward. Admin dapat menambah atau mengurangi maksimal 1.000 point per perubahan.
+
+Leaderboard waktu dihitung setiap satu menit ketika halaman terlihat dan siswa sedang
+login. Siswa lama mulai muncul di leaderboard setelah login memakai versi baru.
+
+PDF donasi dan Shop saat ini menampilkan Coming Soon sesuai permintaan.

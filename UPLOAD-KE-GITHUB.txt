@@ -1,0 +1,20 @@
+SBOOKY — UPLOAD GITHUB PALING MUDAH
+
+Semua file dalam folder ini harus diupload BERSAMA ke halaman utama repository GitHub.
+Jangan upload file ZIP dan jangan membuat folder baru di GitHub.
+
+1. Buka repository GitHub kamu.
+2. Add file → Upload files.
+3. Blok SELURUH isi folder ini, termasuk file JS dan semua gambar file1, file2, dst.
+4. Tarik semuanya ke halaman GitHub, lalu klik Commit changes.
+5. Settings → Pages → Branch main → /(root) → Save.
+
+GAMBAR:
+Taruh file1.png, file2.jpg, file3.webp, sampai file berapa pun LANGSUNG di folder ini.
+Contoh: file1.jpg, file2.png, wihope.png, logo.png.
+Ikon fitur: sbpoint.png, sbgift.png, sbshop.png, sbmissionbook.png, sbfire.png,
+sbleaderbook.png, sbleadertime.png, sbleaderpoint.png, dan sbleaderboard.png.
+Jangan masukkan gambar ke folder images. Semua gambar dan kode harus sejajar dengan index.html.
+
+Setelah Publish GitHub Pages, buka Firebase → Authentication → Settings → Authorized domains,
+lalu tambahkan: namakamu.github.io

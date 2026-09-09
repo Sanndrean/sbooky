@@ -1,0 +1,96 @@
+PERBAIKAN TERBARU: PEMANGGIL FIREBASE + HAPUS BAR MERAH
+
+Untuk memperbarui versi yang sudah kamu pakai:
+1. Ekstrak ZIP terbaru.
+2. Salin seluruh file dari ZIP ke folder Sbooky lama.
+   Pilih Replace/Ganti jika diminta. Semua kode dan gambar berada dalam satu folder.
+3. Buka lewat Live Server, lalu tekan Ctrl+F5.
+
+Pemanggil Firebase yang terlewat di index.html sudah dipasang.
+Bar merah atas dihapus; kendala koneksi muncul di formulir login.
+Tidak perlu membuat ulang proyek atau akun Firebase.
+
+PERBAIKAN TOMBOL DAN KOLEKSI — MULAI DI SINI
+
+1. Ekstrak ZIP ini ke folder baru (jangan jalankan dari dalam ZIP).
+2. Salin gambar milikmu file1 sampai file8 dan wihope dari folder lama
+   ke folder utama website pada versi baru. Jika logo milikmu berbeda, salin logo juga.
+   Jangan hapus folder lama sebelum semua gambar berhasil disalin.
+3. VS Code → File → Open Folder → pilih folder baru yang berisi index.html.
+4. Klik kanan index.html → Open with Live Server. Tekan Ctrl+F5 di browser.
+   Jika menu belum ada: Extensions → cari Live Server (Ritwick Dey) → Install.
+5. Koleksi Offline langsung menampilkan delapan buku; klik Masuk untuk formulir.
+
+PENTING: salin/ekstrak seluruh file, termasuk firebase-sdk.js.
+Berkas Firebase sudah disertakan. Kamu tidak perlu npm atau terminal.
+Jangan hanya mengganti index.html karena perbaikan juga ada di file JavaScript lain.
+Katalog bisa dilihat ketika Firebase belum siap; login dan pinjam perlu Firebase.
+Jika Firebase bermasalah, pesannya muncul di formulir Masuk. Tekan Masuk untuk mencoba lagi.
+Pesan ini tidak selalu berarti internetmu mati.
+
+Jika stok bertuliskan Belum diaktifkan: buku sudah ada di katalog lokal,
+tetapi admin masih perlu Simpan 8 buku awal, kemudian isi stok nyata.
+Tidak perlu mengulang pembuatan proyek Firebase. Rules dan UID admin tetap
+harus sesuai SETUP-FIREBASE.html agar login admin dan simpan data diizinkan.
+
+SBOOKY — VERSI FIREBASE GRATIS UNTUK BUKU FISIK
+
+MULAI DARI SINI:
+1. Ekstrak ZIP terbaru ke folder baru.
+2. Buka SETUP-FIREBASE.html. Ada panduan lengkap dan tombol SALIN RULES.
+3. Ikuti: Publish Rules → buat akun di Authentication → daftar UID admin
+   di Firestore adminAccess → login admin → Simpan 8 buku awal.
+4. Buka index.html menggunakan Live Server di VS Code.
+
+Kamu sudah sampai membuat Firestore. Tidak perlu mengulang membuat proyek.
+Konfigurasi sbooky-1 sudah terisi. Untuk versi ini tidak perlu terminal, Node.js,
+private key atau Cloud Functions. Storage boleh dilewati.
+
+ADMIN:
+SAdmin / OAdmin / JAdmin / GAdmin / AdminU.
+Password awal: ongko123, ketika kamu membuat akunnya di Firebase Console.
+Akun tidak otomatis ada hanya karena kode website sudah didownload.
+Pembuatan akun dan izin UID dijelaskan lengkap di SETUP-FIREBASE.html.
+
+BUKU LAMA TETAP TERHUBUNG:
+file1 = Perahu Kertas
+file2 = Si Juki: Komik Strip
+file3 = Matematika
+file4 = The New Girl's Secret
+file5 = Romansa Romantika Masa SMA
+file6 = Ensiklopedia Sains
+file7 = Misteri Buku L/G
+file8 = Kebudayaan di Nusantara
+
+Salin sampul file1–file8 dari folder lamamu ke folder utama website versi ini.
+PNG/JPG/JPEG/WEBP didukung. Nomor berikutnya juga bisa digunakan.
+Salin wihope untuk logo sekolah. Logo Sbooky (logo.png) sudah disertakan.
+
+Admin → Buku & stok → Simpan 8 buku awal, lalu isi stok lewat Edit buku & stok.
+Stok awal 0 agar sesuai jumlah nyata yang nanti kamu masukkan.
+Judul, author, kategori dan file sampul dapat diedit dari admin.
+
+NIS:
+Daftar siswa akan membuat akun login dan profil/NIS di Firestore users.
+Cek Firebase Console → Firestore Database → Data → users → field nis.
+Kalau sebelumnya sudah daftar, masuk pakai NIS lama; lengkapi profil bila diminta.
+
+DONASI DIGITAL:
+Firebase Storage memerlukan Blaze. Pada konfigurasi gratis ini upload PDF/scan
+belum aktif dan tidak dipura-purakan berhasil. Fitur fisik tidak membutuhkan upgrade.
+Panduan opsional berbayar terpisah: PANDUAN-BLAZE-OPSIONAL.md.
+
+FILE PENTING:
+SETUP-FIREBASE.html        panduan mudah + tombol Salin Rules
+PANDUAN-FIREBASE.md        panduan lengkap dalam teks
+FIRESTORE-RULES.txt   SELURUH kode untuk Firestore Database > Rules > Publish
+config.js                 konfigurasi proyek sbooky-1; backend spark
+index.html                website siswa
+admin.html                pintu masuk admin
+style.css                 desain
+script.js                 interaksi/tampilan
+firebase-store.js         koneksi Auth/Firestore versi gratis
+firestore-actions.js      transaksi peminjaman, rating, point, dan stok
+
+Semua file pada paket ini sengaja diletakkan dalam satu folder agar mudah diunggah
+ke root repository GitHub.
